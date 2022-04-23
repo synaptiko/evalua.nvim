@@ -18,27 +18,27 @@ This plugin was written with usage of new features of [Neovim 0.7](https://githu
 Example configuration with `packer.nvim`:
 ```lua
 use({
-	'synaptiko/evalua.nvim',
-	config = function()
-		local evalua = require('evalua')
-		local augroup = vim.api.nvim_create_augroup('evalua_mappings', { clear = true })
+  'synaptiko/evalua.nvim',
+  config = function()
+    local evalua = require('evalua')
+    local augroup = vim.api.nvim_create_augroup('evalua_mappings', { clear = true })
 
-		vim.api.nvim_create_autocmd('FileType', {
-			group = augroup,
-			pattern = 'lua',
-			callback = function()
-				vim.keymap.set('n', '<Leader>r', evalua.run, { buffer = true, silent = true })
-				vim.keymap.set('n', '<Leader>e', evalua.eval, { buffer = true, silent = true })
-				vim.keymap.set('v', '<Leader>r', evalua.run_block, { buffer = true, silent = true })
-				vim.keymap.set('v', '<Leader>e', evalua.eval_block, { buffer = true, silent = true })
-			end,
-		})
+    vim.api.nvim_create_autocmd('FileType', {
+      group = augroup,
+      pattern = 'lua',
+      callback = function()
+        vim.keymap.set('n', '<Leader>r', evalua.run, { buffer = true, silent = true })
+        vim.keymap.set('n', '<Leader>e', evalua.eval, { buffer = true, silent = true })
+        vim.keymap.set('v', '<Leader>r', evalua.run_block, { buffer = true, silent = true })
+        vim.keymap.set('v', '<Leader>e', evalua.eval_block, { buffer = true, silent = true })
+      end,
+    })
 
-		vim.cmd([[
-			command! EvaluaEnableReload :lua vim.keymap.set('n', '<Leader>a', require('evalua').reload, { silent = true })
-		]])
-	end,
-	requires = 'nvim-lua/plenary.nvim'
+    vim.cmd([[
+      command! EvaluaEnableReload :lua vim.keymap.set('n', '<Leader>a', require('evalua').reload, { silent = true })
+    ]])
+  end,
+  requires = 'nvim-lua/plenary.nvim'
 })
 ```
 
