@@ -2,6 +2,13 @@ local Path = require('plenary.path')
 
 local M = {}
 
+function M.get_current_line()
+  local line_number = vim.api.nvim_win_get_cursor(0)[1]
+  local current_line = vim.api.nvim_buf_get_lines(0, line_number - 1, line_number, false)[1]
+
+	return current_line, line_number
+end
+
 --- NOTE: The following function is "stolen" from https://github.com/neovim/neovim/pull/13896/files
 --- Get the region between two marks and the start and end positions for the region
 ---
@@ -111,10 +118,69 @@ function M.eval_file(filepath)
 		if stat.type == "file" then
 			local path = Path:new(filepath)
 			path:read(vim.schedule_wrap(function(content)
-				vim.cmd("lua << EOF\n" .. content .. "\nEOF")
+				M.eval(content, 'reload', false)
 			end))
 		end
 	end)
+end
+
+function M.print(...)
+  local strs = {}
+  local args = {...}
+
+  for i = 1, select('#', ...) do
+    strs[i] = tostring(args[i])
+  end
+
+  table.insert(M.prints, table.concat(strs, ' '))
+end
+
+function M.eval(content, count, redirect_print)
+  local name = "@[evalua " .. count .."]"
+  local chunk, error = loadstring("return \n" .. content, name)
+
+  if error or chunk == nil then
+		chunk, error = loadstring(content, name)
+  end
+
+	local result
+
+	if chunk ~= nil then
+    local orig_print = _G.print
+
+		if redirect_print then
+			M.prints = {}
+			_G.print = M.print
+		end
+
+		local status, call_result = pcall(chunk)
+
+		if redirect_print then
+			_G.print = orig_print
+		end
+
+    if status == false then
+			error = call_result
+    else
+			result = call_result
+    end
+	end
+
+	local prints = M.prints
+
+	M.prints = nil
+
+  return result, error, prints
+end
+
+function M.value_to_lines(value)
+	local lines
+
+	if value ~= nil then
+		lines = M.split(vim.inspect(value), '\n')
+	end
+
+	return lines
 end
 
 return M

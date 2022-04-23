@@ -1,56 +1,77 @@
 local utils = require('evalua/utils')
 
-local M = {}
+local M = {
+  count = 1,
+}
 
 function M.eval()
-  print('Evalua: eval')
+  print('Evalua: eval', M.count)
 
-  local linenr = vim.api.nvim_win_get_cursor(0)[1]
-  local curline = vim.api.nvim_buf_get_lines(0, linenr - 1, linenr, false)[1]
+  local current_line, line_number = utils.get_current_line()
+  local result, err, prints = utils.eval(current_line, M.count, true)
 
-  local chunk = assert(loadstring('return ' .. curline))
-  local result = utils.split(vim.inspect(chunk()), '\n')
+  M.count = M.count + 1
 
-  table.insert(result, 1, '--' .. '[[') -- use .. to avoid confusing the lua parser
-  table.insert(result, '--]]')
+	if err == nil then
+		local lines = utils.value_to_lines(result)
+		table.insert(lines, 1, '--' .. '[[') -- use .. to avoid confusing the lua parser
+		table.insert(lines, '--]]')
 
-  vim.api.nvim_buf_set_lines(0, linenr, linenr, false, result)
+		vim.api.nvim_buf_set_lines(0, line_number, line_number, false, result)
+	else
+		error(err)
+	end
 end
 
 function M.eval_block()
-  print('Evalua: eval_block')
+  print('Evalua: eval_block', M.count)
 
-  local linenr = vim.api.nvim_win_get_cursor(0)[1]
+  local _, line_number = utils.get_current_line()
   local block = utils.get_visual_selection()
 
-  local chunk = assert(loadstring('return ' .. block))
-  local result = utils.split(vim.inspect(chunk()), '\n')
+  local result, err, prints = utils.eval(block, M.count, true)
 
-  table.insert(result, 1, '--' .. '[[') -- use .. to avoid confusing the lua parser
-  table.insert(result, '--]]')
+  M.count = M.count + 1
 
-  vim.api.nvim_buf_set_lines(0, linenr, linenr, false, result)
+	if err == nil then
+		local lines = utils.value_to_lines(result)
+		table.insert(lines, 1, '--' .. '[[') -- use .. to avoid confusing the lua parser
+		table.insert(lines, '--]]')
+
+		vim.api.nvim_buf_set_lines(0, line_number, line_number, false, result)
+	else
+    error(err)
+	end
 
   vim.api.nvim_input('<esc>')
 end
 
 function M.run_block()
-  print('Evalua: run_block')
+  print('Evalua: run_block', M.count)
 
   local block = utils.get_visual_selection()
+  local _, err = utils.eval(block, M.count, false)
 
-  vim.cmd('lua << EOF\n' .. block .. '\nEOF')
+  M.count = M.count + 1
 
   vim.api.nvim_input('<esc>')
+
+  if err ~= nil then
+    error(err)
+  end
 end
 
 function M.run()
-  print('Evalua: run')
+  print('Evalua: run', M.count)
 
-  local linenr = vim.api.nvim_win_get_cursor(0)[1]
-  local curline = vim.api.nvim_buf_get_lines(0, linenr - 1, linenr, false)[1]
+  local current_line = utils.get_current_line()
+  local _, err = utils.eval(current_line, M.count, false)
 
-  assert(loadstring(curline))()
+  M.count = M.count + 1
+
+  if err ~= nil then
+    error(err)
+  end
 end
 
 function M.reload()
@@ -59,25 +80,15 @@ function M.reload()
   utils.eval_file('./development-reload.lua')
 end
 
-function M.set_mappings()
-  local augroup = vim.api.nvim_create_augroup('evalua_mappings', { clear = true })
+function M.unload(module_name)
+  package.loaded[module_name] = nil
 
-  vim.api.nvim_create_autocmd('FileType', {
-    group = augroup,
-    pattern = 'lua',
-    callback = function()
-      vim.keymap.set('v', '<Leader>r', M.run_block, { buffer = true, silent = true })
-      vim.keymap.set('n', '<Leader>r', M.run, { buffer = true, silent = true })
-      vim.keymap.set('v', '<Leader>e', M.eval_block, { buffer = true, silent = true })
-      vim.keymap.set('n', '<Leader>e', M.eval, { buffer = true, silent = true })
-    end,
-  })
-
-  vim.keymap.set('n', '<Leader>d', M.reload, { silent = true })
-end
-
-function M.setup()
-  M.set_mappings()
+  for name in pairs(package.loaded) do
+    local prefix = string.sub(name, 1, #module_name + 1)
+    if prefix == module_name .. '.' or prefix == module_name .. '/' then
+      package.loaded[name] = nil
+    end
+  end
 end
 
 return M
