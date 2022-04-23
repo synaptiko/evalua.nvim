@@ -7,18 +7,14 @@ local M = {
 function M.eval()
   print('Evalua: eval', M.count)
 
-  local current_line, line_number = utils.get_current_line()
+  local current_line = vim.api.nvim_get_current_line()
   local result, err, prints = utils.eval(current_line, M.count, true)
 
   M.count = M.count + 1
 
-	if err == nil then
-		local lines = utils.value_to_lines(result)
-		table.insert(lines, 1, '--' .. '[[') -- use .. to avoid confusing the lua parser
-		table.insert(lines, '--]]')
+	utils.open_eval_window(result, err, prints)
 
-		vim.api.nvim_buf_set_lines(0, line_number, line_number, false, result)
-	else
+	if err ~= nil then
 		error(err)
 	end
 end
@@ -26,24 +22,19 @@ end
 function M.eval_block()
   print('Evalua: eval_block', M.count)
 
-  local _, line_number = utils.get_current_line()
   local block = utils.get_visual_selection()
 
   local result, err, prints = utils.eval(block, M.count, true)
 
   M.count = M.count + 1
 
-	if err == nil then
-		local lines = utils.value_to_lines(result)
-		table.insert(lines, 1, '--' .. '[[') -- use .. to avoid confusing the lua parser
-		table.insert(lines, '--]]')
-
-		vim.api.nvim_buf_set_lines(0, line_number, line_number, false, result)
-	else
-    error(err)
-	end
+	utils.open_eval_window(result, err, prints)
 
   vim.api.nvim_input('<esc>')
+
+	if err ~= nil then
+		error(err)
+	end
 end
 
 function M.run_block()
@@ -64,7 +55,7 @@ end
 function M.run()
   print('Evalua: run', M.count)
 
-  local current_line = utils.get_current_line()
+  local current_line = vim.api.nvim_get_current_line()
   local _, err = utils.eval(current_line, M.count, false)
 
   M.count = M.count + 1
