@@ -1,3 +1,3 @@
-package.loaded['metalua'] = nil
-metalua = require('metalua')
-metalua.setup()
+package.loaded['evalua'] = nil
+evalua = require('evalua')
+evalua.setup()

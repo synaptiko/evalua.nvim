@@ -1,9 +1,9 @@
-local utils = require('metalua/utils')
+local utils = require('evalua/utils')
 
 local M = {}
 
 function M.eval()
-	print('Metalua: eval')
+  print('Evalua: eval')
 
   local linenr = vim.api.nvim_win_get_cursor(0)[1]
   local curline = vim.api.nvim_buf_get_lines(0, linenr - 1, linenr, false)[1]
@@ -18,7 +18,7 @@ function M.eval()
 end
 
 function M.eval_block()
-	print('Metalua: eval_block')
+  print('Evalua: eval_block')
 
   local linenr = vim.api.nvim_win_get_cursor(0)[1]
   local block = utils.get_visual_selection()
@@ -31,21 +31,21 @@ function M.eval_block()
 
   vim.api.nvim_buf_set_lines(0, linenr, linenr, false, result)
 
-	vim.api.nvim_input("<esc>")
+  vim.api.nvim_input('<esc>')
 end
 
 function M.run_block()
-	print('Metalua: run_block')
+  print('Evalua: run_block')
 
   local block = utils.get_visual_selection()
 
   vim.cmd('lua << EOF\n' .. block .. '\nEOF')
 
-	vim.api.nvim_input("<esc>")
+  vim.api.nvim_input('<esc>')
 end
 
 function M.run()
-	print('Metalua: run')
+  print('Evalua: run')
 
   local linenr = vim.api.nvim_win_get_cursor(0)[1]
   local curline = vim.api.nvim_buf_get_lines(0, linenr - 1, linenr, false)[1]
@@ -54,13 +54,13 @@ function M.run()
 end
 
 function M.reload()
-	print('Metalua: reload')
+  print('Evalua: reload')
 
   utils.eval_file('./development-reload.lua')
 end
 
 function M.set_mappings()
-  local augroup = vim.api.nvim_create_augroup('metalua_mappings', { clear = true })
+  local augroup = vim.api.nvim_create_augroup('evalua_mappings', { clear = true })
 
   vim.api.nvim_create_autocmd('FileType', {
     group = augroup,
@@ -73,7 +73,7 @@ function M.set_mappings()
     end,
   })
 
-	vim.keymap.set('n', '<Leader>o', M.reload, { silent = true })
+  vim.keymap.set('n', '<Leader>d', M.reload, { silent = true })
 end
 
 function M.setup()
