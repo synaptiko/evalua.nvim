@@ -51,6 +51,11 @@ Now you should be ready to use the plugin in your plugins or lua files.
 
 ### Usage
 
+Before you can develop your plugin, make sure to start your neovim instance with `runtimepath` which contains `.` (current working directory, which should be root of your plugin). Here's an example alias:
+```
+alias vp="vim +\"let &rtp='.,'.&rtp\""
+```
+
 To use plugin reload feature in your plugin, you need to create `development-reload.lua` files in the root of your plugin. Here's example of `evalua`'s one:
 ```lua
 require('evalua').unload('evalua')
