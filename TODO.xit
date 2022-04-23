@@ -1,6 +1,6 @@
 [x] Fix evaluation I use for blocks, `lua << EOF` is not needed
-[ ] Check if this approach works better than what I currently have:
+[x] Check if this approach works better than what I currently have:
     https://github.com/bfredl/nvim-luadev/blob/master/plugin/luadev.vim#L10-L25
-[ ] Extract useful parts from https://github.com/bfredl/nvim-luadev/blob/master/lua/luadev.lua
-[ ] Write README
+[x] Extract useful parts from https://github.com/bfredl/nvim-luadev/blob/master/lua/luadev.lua
+[x] Write README
 [ ] Check if https://github.com/kikito/inspect.lua is better than vim.inspect
