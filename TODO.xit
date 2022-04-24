@@ -3,4 +3,4 @@
     https://github.com/bfredl/nvim-luadev/blob/master/plugin/luadev.vim#L10-L25
 [x] Extract useful parts from https://github.com/bfredl/nvim-luadev/blob/master/lua/luadev.lua
 [x] Write README
-[ ] Check if https://github.com/kikito/inspect.lua is better than vim.inspect
+[x] Check if https://github.com/kikito/inspect.lua is better than vim.inspect

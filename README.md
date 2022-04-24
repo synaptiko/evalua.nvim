@@ -34,9 +34,9 @@ use({
       end,
     })
 
-    vim.cmd([[
-      command! EvaluaEnableReload :lua vim.keymap.set('n', '<Leader>a', require('evalua').reload, { silent = true })
-    ]])
+    vim.api.nvim_create_user_command('EvaluaEnableReload', function()
+      vim.keymap.set('n', '<Leader>a', evalua.reload, { silent = true })
+    end, {})
   end,
   requires = 'nvim-lua/plenary.nvim'
 })
